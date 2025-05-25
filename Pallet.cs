@@ -5,8 +5,8 @@ namespace WarehouseApp
         public Pallet()
         {
             Width = 1.5;
-            Height = 1.5;
-            Depth = 0.2;
+            Height = 0.2;
+            Depth = 1.5;
         }
 
         private const double PalletWeight = 30;
