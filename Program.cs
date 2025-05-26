@@ -81,6 +81,10 @@ namespace WarehouseApp
                     if (!DateTime.TryParseExact(dateInput, "yyyy-MM-dd", null, DateTimeStyles.None, out var manufactureDate))
                         throw new Exception("Неверный формат даты. Используйте формат гггг-мм-дд.");
 
+                    DateTime expirationDate = manufactureDate.AddDays(100);
+                    if (expirationDate < DateTime.Today.Date)
+                        throw new Exception("Эта коробка уже просрочена и не может быть добавлена.");
+
                     if (width > pallet.Width || depth > pallet.Depth)
                         throw new Exception("Размеры коробки превышают размеры паллеты по ширине или глубине.");
 
@@ -127,12 +131,31 @@ namespace WarehouseApp
             else Console.WriteLine("Неверный выбор паллеты.");
         }
 
+        static void GroupAndDisplayPalletsByExpiration(List<Pallet> pallets)
+        {
+            Console.WriteLine("\nГруппировка паллет по сроку годности (по возрастанию), внутри — сортировка по весу:");
+
+            var grouped = pallets
+                .Where(p => p.ExpirationDate.HasValue)
+                .GroupBy(p => p.ExpirationDate.Value.Date)
+                .OrderBy(g => g.Key);
+
+            foreach (var group in grouped)
+            {
+                Console.WriteLine($"\nСрок годности: {group.Key:dd.MM.yyyy}");
+                foreach (var pallet in group.OrderBy(p => p.Weight))
+                {
+                    Console.WriteLine($"  Паллета ID: {pallet.Id.ToString()[..8]} — Вес: {pallet.Weight} кг");
+                }
+            }
+        }
+
         static List<Pallet> GenerateSamplePallets()
         {
             var random = new Random();
             var pallets = new List<Pallet>();
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 15; i++)
             {
                 var pallet = new Pallet();
 
@@ -145,7 +168,7 @@ namespace WarehouseApp
                         Height = Math.Round(random.NextDouble() * 0.5 + 0.1, 2),
                         Depth = Math.Round(random.NextDouble() * 0.6 + 0.1, 2),
                         Weight = Math.Round(random.NextDouble() * 10 + 1, 2),
-                        ManufactureDate = DateTime.Today.AddDays(-random.Next(0, 99))
+                        ManufactureDate = DateTime.Today.AddDays(-random.Next(0, 100))
                     };
                     pallet.Boxes.Add(box);
                 }
@@ -166,6 +189,7 @@ namespace WarehouseApp
                 Console.WriteLine("Выберите действие:");
                 Console.WriteLine("1. Посмотреть все паллеты и их содержимое");
                 Console.WriteLine("2. Редактировать коробки (добавить или удалить)");
+                Console.WriteLine("3. Группировать паллеты по сроку годности и отсортировать");
                 Console.WriteLine("0. Выход");
 
                 Console.Write("Ваш выбор: ");
@@ -178,6 +202,9 @@ namespace WarehouseApp
                         break;
                     case "2":
                         EditBoxes(pallets);
+                        break;
+                    case "3":
+                        GroupAndDisplayPalletsByExpiration(pallets);
                         break;
                     case "0":
                         Console.WriteLine("Завершение работы...");
