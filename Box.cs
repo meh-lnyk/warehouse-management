@@ -5,7 +5,7 @@ namespace WarehouseApp
         public DateTime? ExpirationDate { get; set; }
         public DateTime? ManufactureDate { get; set; }
 
-        public double Volume => Width * Height * Depth;
+        public override double Volume => Width * Height * Depth;
 
         public DateTime EffectiveExpirationDate
         {

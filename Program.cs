@@ -63,7 +63,7 @@ namespace WarehouseApp
             Console.WriteLine("0. Назад");
 
             Console.Write("Выберите действие: ");
-            string choice = Console.ReadLine();
+            string choice = Console.ReadLine() ?? "";
 
             switch (choice)
             {
@@ -106,7 +106,7 @@ namespace WarehouseApp
                     if (!double.TryParse(Console.ReadLine(), out double weight)) throw new Exception("Неверный формат веса.");
 
                     Console.Write("Дата производства (гггг-мм-дд): ");
-                    string dateInput = Console.ReadLine();
+                    string dateInput = Console.ReadLine() ?? "";
                     if (!DateTime.TryParseExact(dateInput, "yyyy-MM-dd", null, DateTimeStyles.None, out var manufactureDate))
                         throw new Exception("Неверный формат даты. Используйте формат гггг-мм-дд.");
 
@@ -169,7 +169,7 @@ namespace WarehouseApp
                 Console.WriteLine("0. Выход");
 
                 Console.Write("Ваш выбор: ");
-                string input = Console.ReadLine();
+                string input = Console.ReadLine() ?? "";
 
                 switch (input)
                 {
