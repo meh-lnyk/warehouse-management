@@ -88,6 +88,9 @@ namespace WarehouseApp
                     if (width > pallet.Width || depth > pallet.Depth)
                         throw new Exception("Размеры коробки превышают размеры паллеты по ширине или глубине.");
 
+                    if (width <= 0 || height <= 0 || depth <= 0 || weight <= 0)
+                    throw new Exception("Размеры и вес коробки должны быть положительными числами.");
+
                     var newBox = new Box
                     {
                         Width = width,
@@ -131,6 +134,25 @@ namespace WarehouseApp
             else Console.WriteLine("Неверный выбор паллеты.");
         }
 
+        static void GroupAndDisplayPalletsByExpiration(List<Pallet> pallets)
+        {
+            Console.WriteLine("\nГруппировка паллет по сроку годности (по возрастанию), внутри — сортировка по весу:");
+
+            var grouped = pallets
+                .Where(p => p.ExpirationDate.HasValue)
+                .GroupBy(p => p.ExpirationDate!.Value.Date)
+                .OrderBy(g => g.Key);
+
+            foreach (var group in grouped)
+            {
+                Console.WriteLine($"\nСрок годности: {group.Key:dd.MM.yyyy}");
+                foreach (var pallet in group.OrderBy(p => p.Weight))
+                {
+                    Console.WriteLine($"  Паллета ID: {pallet.Id.ToString()[..8]} — Вес: {pallet.Weight} кг");
+                }
+            }
+        }
+
         static void DisplayTop3PalletsByLatestBoxExpiration(List<Pallet> pallets)
         {
             Console.WriteLine("\n3 паллеты, содержащие коробки с наибольшим сроком годности (по возрастанию объема):");
@@ -152,25 +174,6 @@ namespace WarehouseApp
                 Console.WriteLine($"\nПаллета ID: {p.Id.ToString()[..8]}");
                 Console.WriteLine($"  Объем: {p.Volume:F2} м³");
                 Console.WriteLine($"  Максимальный срок годности коробки: {entry.MaxBoxExpiration:dd.MM.yyyy}");
-            }
-        }
-
-        static void GroupAndDisplayPalletsByExpiration(List<Pallet> pallets)
-        {
-            Console.WriteLine("\nГруппировка паллет по сроку годности (по возрастанию), внутри — сортировка по весу:");
-
-            var grouped = pallets
-                .Where(p => p.ExpirationDate.HasValue)
-                .GroupBy(p => p.ExpirationDate.Value.Date)
-                .OrderBy(g => g.Key);
-
-            foreach (var group in grouped)
-            {
-                Console.WriteLine($"\nСрок годности: {group.Key:dd.MM.yyyy}");
-                foreach (var pallet in group.OrderBy(p => p.Weight))
-                {
-                    Console.WriteLine($"  Паллета ID: {pallet.Id.ToString()[..8]} — Вес: {pallet.Weight} кг");
-                }
             }
         }
 
