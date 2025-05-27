@@ -131,6 +131,30 @@ namespace WarehouseApp
             else Console.WriteLine("Неверный выбор паллеты.");
         }
 
+        static void DisplayTop3PalletsByLatestBoxExpiration(List<Pallet> pallets)
+        {
+            Console.WriteLine("\n3 паллеты, содержащие коробки с наибольшим сроком годности (по возрастанию объема):");
+
+            var topPallets = pallets
+                .Where(p => p.Boxes.Count > 0)
+                .Select(p => new
+                {
+                    Pallet = p,
+                    MaxBoxExpiration = p.Boxes.Max(b => b.EffectiveExpirationDate)
+                })
+                .OrderByDescending(p => p.MaxBoxExpiration)
+                .ThenBy(p => p.Pallet.Volume)
+                .Take(3);
+
+            foreach (var entry in topPallets)
+            {
+                var p = entry.Pallet;
+                Console.WriteLine($"\nПаллета ID: {p.Id.ToString()[..8]}");
+                Console.WriteLine($"  Объем: {p.Volume:F2} м³");
+                Console.WriteLine($"  Максимальный срок годности коробки: {entry.MaxBoxExpiration:dd.MM.yyyy}");
+            }
+        }
+
         static void GroupAndDisplayPalletsByExpiration(List<Pallet> pallets)
         {
             Console.WriteLine("\nГруппировка паллет по сроку годности (по возрастанию), внутри — сортировка по весу:");
@@ -190,6 +214,7 @@ namespace WarehouseApp
                 Console.WriteLine("1. Посмотреть все паллеты и их содержимое");
                 Console.WriteLine("2. Редактировать коробки (добавить или удалить)");
                 Console.WriteLine("3. Группировать паллеты по сроку годности и отсортировать");
+                Console.WriteLine("4. Топ-3 паллеты с коробками с наибольшим сроком годности");
                 Console.WriteLine("0. Выход");
 
                 Console.Write("Ваш выбор: ");
@@ -205,6 +230,9 @@ namespace WarehouseApp
                         break;
                     case "3":
                         GroupAndDisplayPalletsByExpiration(pallets);
+                        break;
+                    case "4":
+                        DisplayTop3PalletsByLatestBoxExpiration(pallets);
                         break;
                     case "0":
                         Console.WriteLine("Завершение работы...");
